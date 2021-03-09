@@ -106,11 +106,12 @@ app.post('/deposit',
       if (!validationResult(req).isEmpty())
         return res.status(400).json({ message: "Invalid data" })
       //can deposit
-      const imaMoney = AEuser?.balance + amount
+      if(!AEuser){}else{
+      AEuser.balance = AEuser.balance + amount}
       res.status(200)
       res.json({
         message: "Deposit successfully",
-        "balance": imaMoney
+        "balance": AEuser?.balance
       })
     }
     catch (e) {
@@ -135,11 +136,12 @@ app.post('/withdraw',
       if (!validationResult(req).isEmpty())
         return res.status(400).json({ message: "Invalid data" })
       //can deposit
-      const imaMoney = AEuser?.balance + amount ////minus?
+      if(!AEuser){}else{
+      AEuser.balance = AEuser.balance - amount}
       res.status(200)
       res.json({
-        message: "Withdraw successfully",
-        "balance": imaMoney
+        message: "Deposit successfully",
+        "balance": AEuser?.balance
       })
     }
     catch (e) {
