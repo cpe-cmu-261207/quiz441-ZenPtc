@@ -24,7 +24,7 @@ interface User{
   lastname:string,
   balance:number
 }
-const users:User[] = [];
+let users:User[] = [];
 
 app.post('/login',
   (req, res) => {
@@ -80,7 +80,7 @@ app.get('/balance',
       const AEuser = users.find(user => user.username === username)
       res.status(200)
       res.json({
-        "name": username,
+        "name": AEuser?.username,
         "balance": AEuser?.balance
       })
     }
@@ -97,27 +97,78 @@ app.get('/balance',
 app.post('/deposit',
   body('amount').isInt({ min: 1 }),
   (req, res) => {
-
-    //Is amount <= 0 ?
-    if (!validationResult(req).isEmpty())
-      return res.status(400).json({ message: "Invalid data" })
+    const { amount } = req.body
+    const token = req.query?.token as string
+    try {
+      const { username } = jwt.verify(token, SECRET) as JWTPayload
+      const AEuser = users.find(user => user.username === username)
+      //Is amount <= 0 ?
+      if (!validationResult(req).isEmpty())
+        return res.status(400).json({ message: "Invalid data" })
+      //can deposit
+      const imaMoney = AEuser?.balance + amount
+      res.status(200)
+      res.json({
+        message: "Deposit successfully",
+        "balance": imaMoney
+      })
+    }
+    catch (e) {
+      //response in case of invalid token
+      res.status(401)
+      res.json({
+          message: "Invalid token"
+      })
+      return
+    }
   })
 
 app.post('/withdraw',
+  body('amount').isInt({ min: 1 }),
   (req, res) => {
+    const { amount } = req.body
+    const token = req.query?.token as string
+    try {
+      const { username } = jwt.verify(token, SECRET) as JWTPayload
+      const AEuser = users.find(user => user.username === username)
+      //Is amount <= 0 ?
+      if (!validationResult(req).isEmpty())
+        return res.status(400).json({ message: "Invalid data" })
+      //can deposit
+      const imaMoney = AEuser?.balance + amount ////minus?
+      res.status(200)
+      res.json({
+        message: "Withdraw successfully",
+        "balance": imaMoney
+      })
+    }
+    catch (e) {
+      //response in case of invalid token
+      res.status(401)
+      res.json({
+          message: "Invalid token"
+      })
+      return
+    }
   })
 
 app.delete('/reset', (req, res) => {
 
   //code your database reset here
-  
+  users = []
   return res.status(200).json({
     message: 'Reset database successfully'
   })
 })
 
 app.get('/me', (req, res) => {
-  
+  res.status(200)
+  res.json({
+    firstname: "Naruporn",
+    lastname: "Powthongchin",
+    code: 620610794,
+    gpa: 3.38
+  })
 })
 
 app.get('/demo', (req, res) => {
